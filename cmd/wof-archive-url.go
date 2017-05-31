@@ -124,6 +124,18 @@ func main() {
 		})
 	}
 
+	wof_tags := make([]string, 0)
+
+	t := gjson.GetBytes(feature, "properties.wof:tags")
+
+	if t.Exists() {
+
+		t.ForEach(func(key, value gjson.Result) bool {
+			wof_tags = append(wof_tags, value.String())
+			return true	
+		})
+	}
+
 	// get URL title
 
 	title, err := ParseURL(*to_archive)
@@ -150,6 +162,10 @@ func main() {
 	}
 
 	for _, t := range concordances {
+		tags = append(tags, t)
+	}
+
+	for _, t := range wof_tags {
 		tags = append(tags, t)
 	}
 

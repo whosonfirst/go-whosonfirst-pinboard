@@ -19,6 +19,8 @@ _Please write me..._
   "Title": "Where Jonathan Gold goes for spicy comfort food in Koreatown - LA Times", 
   "Tags": [
     "latimes.com", 
+    "restaurant", 
+    "korean",
     "wof:placetype=venue", 
     "wof:id=1108802103", 
     "archive:dt=20170531002027", 
