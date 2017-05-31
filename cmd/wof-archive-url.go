@@ -35,9 +35,10 @@ func (bm Bookmark) ToParams() *url.Values {
 
 func main() {
 
-	var wofid = flag.Int64("wofid", 0, "...")
-	var to_archive = flag.String("url", "", "...")
-	var token = flag.String("token", "", "...")
+	var wofid = flag.Int64("wofid", 0, "A valid Who's On First ID")
+	var to_archive = flag.String("url", "", "The URL you want to bookmark.")
+	var token = flag.String("token", "", "A valid Pinboard API auth token.")	
+	var data_root = flag.String("data-root", "https://whosonfirst.mapzen.com/data/", "...")
 
 	flag.Parse()
 
@@ -71,7 +72,7 @@ func main() {
 	// please move me in to a function or something...
 	// (20170530/thisisaaronland)
 
-	abs_url, err := uri.Id2AbsPath("https://whosonfirst.mapzen.com/data/", *wofid)
+	abs_url, err := uri.Id2AbsPath(*data_root, *wofid)
 
 	if err != nil {
 		log.Fatal(err)
