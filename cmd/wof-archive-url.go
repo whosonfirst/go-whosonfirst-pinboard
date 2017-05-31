@@ -1,7 +1,7 @@
 package main
 
 import (
-       "encoding/json"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -97,8 +97,8 @@ func main() {
 
 	h.ForEach(func(key, value gjson.Result) bool {
 
-		for placetype, id := range value.Map() {		
-			hierarchy[ id.String() ] = placetype
+		for placetype, id := range value.Map() {
+			hierarchy[id.String()] = placetype
 		}
 
 		return true // keep iterating
@@ -111,16 +111,16 @@ func main() {
 
 	c := gjson.GetBytes(feature, "properties.wof:concordances")
 
-	if c.Exists(){
+	if c.Exists() {
 
 		c.ForEach(func(key, value gjson.Result) bool {
-		
+
 			if key.String() != "sg:id" {
 				tag := fmt.Sprintf("%s=%s", key, value)
 				concordances = append(concordances, tag)
 			}
 
-			return true	
+			return true
 		})
 	}
 
@@ -132,7 +132,7 @@ func main() {
 
 		t.ForEach(func(key, value gjson.Result) bool {
 			wof_tags = append(wof_tags, value.String())
-			return true	
+			return true
 		})
 	}
 
@@ -187,7 +187,7 @@ func main() {
 	}
 
 	fmt.Printf("%s\n", pretty.Pretty(enc_bm))
-	
+
 	// go!
 
 	err = SaveBookmark(bm, *token)
