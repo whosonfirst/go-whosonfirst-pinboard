@@ -13,7 +13,7 @@ _Please write me..._
 ### wof-archive-url
 
 ```
-./bin/wof-archive-url  -token **** -url http://www.latimes.com/food/dailydish/la-fo-gold-review-sun-nong-dan-20161103-story.html -wofid 1108802103
+./bin/wof-archive-url  -auth-token **** -url http://www.latimes.com/food/dailydish/la-fo-gold-review-sun-nong-dan-20161103-story.html -wofid 1108802103
 {
   "URL": "http://www.latimes.com/food/dailydish/la-fo-gold-review-sun-nong-dan-20161103-story.html", 
   "Title": "Where Jonathan Gold goes for spicy comfort food in Koreatown - LA Times", 
