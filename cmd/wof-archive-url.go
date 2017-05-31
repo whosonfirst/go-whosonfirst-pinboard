@@ -37,7 +37,7 @@ func main() {
 
 	var wofid = flag.Int64("wofid", 0, "A valid Who's On First ID")
 	var to_archive = flag.String("url", "", "The URL you want to bookmark.")
-	var token = flag.String("token", "", "A valid Pinboard API auth token.")	
+	var token = flag.String("token", "", "A valid Pinboard API auth token.")
 	var data_root = flag.String("data-root", "https://whosonfirst.mapzen.com/data/", "...")
 
 	flag.Parse()
@@ -196,6 +196,54 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func GetBookmark(uri string, token string) error {
+
+	req, err := http.NewRequest("GET", "https://api.pinboard.in/v1/posts/get", nil)
+
+	if err != nil {
+		return err
+	}
+
+	params := url.Values{}
+
+	params.Set("url", uri)
+	params.Set("auth_token", token)
+	params.Set("format", "json")
+
+	req.URL.RawQuery = params.Encode()
+
+	client := &http.Client{}
+
+	rsp, err := client.Do(req)
+
+	if err != nil {
+		return err
+	}
+
+	defer rsp.Body.Close()
+
+	if rsp.StatusCode != 200 {
+		return errors.New(rsp.Status)
+	}
+
+	body, err := ioutil.ReadAll(rsp.Body)
+
+	if err != nil {
+		return err
+	}
+
+	/*
+
+	2017/05/30 20:07:11 {"date":"2017-05-31T01:10:23Z","user":"mapzen","posts":[{"href":"https:\/\/missionlocal.org\/2016\/10\/trump-supporters-kicked-out-of-zeitgeist-bar-for-lewd-comments\/","description":"Trump Supporters Kicked Out of Zeitgeist Bar for Lewd Comments \u00bb MissionLocal","extended":"","meta":"725e08849afb1c22b5db857a711eda19","hash":"ab1c141c11e9d3522ff03c53ae3cf996","time":"2017-05-31T01:10:23Z","shared":"yes","toread":"no","tags":"missionlocal.org wof:placetype=venue wof:id=588371677 archive:dt=20170531011022 wof:region_id=85688637 wof:venue_id=588371677 wof:continent_id=102191575 wof:country_id=85633793 wof:county_id=102087579 wof:locality_id=85922583 wof:neighbourhood_id=85887415"}]}
+
+	*/
+	
+	log.Println(string(body))
+
+	return nil
+
 }
 
 func SaveBookmark(bm Bookmark, token string) error {
