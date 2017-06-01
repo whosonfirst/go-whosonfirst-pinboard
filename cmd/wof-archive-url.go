@@ -13,6 +13,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
 )
 
@@ -209,6 +212,42 @@ func main() {
 	}
 
 	if *auth_token == "" {
+		*auth_token = os.Getenv("PINBOARD_AUTH_TOKEN")
+	}
+
+	if *auth_token == "" {
+
+		usr, err := user.Current()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		home := usr.HomeDir
+		dotpb := filepath.Join(home, ".pinboard")
+		creds := filepath.Join(dotpb, "credentials")
+
+		_, err = os.Stat(creds)
+
+		if err == nil {
+
+			fh, err := os.Open(creds)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			body, err := ioutil.ReadAll(fh)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			*auth_token = string(body)
+		}
+	}
+
+	if *auth_token == "" {
 		log.Fatal("Missing Pinboard API token")
 	}
 
@@ -253,7 +292,7 @@ func main() {
 	hierarchy := make(map[string]string)
 	concordances := make([]string, 0)
 	// placetypes
-	
+
 	abs_url, err := uri.Id2AbsPath(*data_root, *wofid)
 
 	if err != nil {
