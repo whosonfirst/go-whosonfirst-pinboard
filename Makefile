@@ -8,7 +8,12 @@ rmdeps:
 	if test -d src; then rm -rf src; fi 
 
 self:   prep
-	if test ! -d src; then mkdir src; fi
+	if test -d src; then rm -rf src; fi
+	mkdir src
+	mkdir -p src/github.com/whosonfirst/go-whosonfirst-pinboard
+	cp -r internetarchive src/github.com/whosonfirst/go-whosonfirst-pinboard/
+	cp -r pinboard src/github.com/whosonfirst/go-whosonfirst-pinboard/
+	cp -r webpage src/github.com/whosonfirst/go-whosonfirst-pinboard/
 	cp -r vendor/src/* src/
 
 deps:   
@@ -27,6 +32,9 @@ vendor-deps: rmdeps deps
 
 fmt:
 	go fmt cmd/*.go
+	go fmt internetarchive/*.go
+	go fmt pinboard/*.go
+	go fmt webpage/*.go
 
 bin:	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-archive-url cmd/wof-archive-url.go

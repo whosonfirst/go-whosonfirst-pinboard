@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/pretty"
+	"github.com/whosonfirst/go-whosonfirst-pinboard/internetarchive"
+	"github.com/whosonfirst/go-whosonfirst-pinboard/pinboard"
+	"github.com/whosonfirst/go-whosonfirst-pinboard/webpage"
 	"github.com/whosonfirst/go-whosonfirst-uri"
-	"golang.org/x/net/html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,181 +19,6 @@ import (
 	"path/filepath"
 	"strings"
 )
-
-type WaybackAPI struct {
-}
-
-func NewWaybackAPI() (*WaybackAPI, error) {
-
-	wb := WaybackAPI{}
-	return &wb, nil
-}
-
-func (wb *WaybackAPI) SaveURL(u string) (string, error) {
-
-	/*
-
-	   curl -s -v 'https://web.archive.org/save/https://whosonfirst.mapzen.com/theory'
-
-	   < HTTP/1.1 302 Found
-	   < Server: Tengine/2.1.0
-	   < Date: Tue, 30 May 2017 22:33:17 GMT
-	   < Content-Type: text/html;charset=utf-8
-	   < Content-Length: 3153
-	   < Connection: keep-alive
-	   < Content-Location: /web/20170530223315/https://whosonfirst.mapzen.com/theory
-	*/
-
-	url := fmt.Sprintf("https://web.archive.org/save/%s", u)
-
-	rsp, err := http.Get(url)
-
-	if err != nil {
-		return "", err
-	}
-
-	defer rsp.Body.Close()
-
-	loc := rsp.Header.Get("Content-Location")
-
-	if loc == "" {
-		return "", errors.New("Could not determine content-location")
-	}
-
-	parts := strings.Split(loc, "/")
-	dt := parts[2]
-
-	return dt, nil
-}
-
-type PinboardAPI struct {
-	AuthToken string
-}
-
-func NewPinboardAPI(auth_token string) (*PinboardAPI, error) {
-
-	p := PinboardAPI{
-		AuthToken: auth_token,
-	}
-
-	return &p, nil
-}
-
-func (p *PinboardAPI) SaveBookmark(bm *Bookmark) error {
-
-	req, err := http.NewRequest("GET", "https://api.pinboard.in/v1/posts/add", nil)
-
-	if err != nil {
-		return err
-	}
-
-	params := bm.ToParams()
-	params.Set("auth_token", p.AuthToken)
-	req.URL.RawQuery = (*params).Encode()
-
-	client := &http.Client{}
-
-	rsp, err := client.Do(req)
-
-	if err != nil {
-		return err
-	}
-
-	defer rsp.Body.Close()
-
-	if rsp.StatusCode != 200 {
-		return errors.New(rsp.Status)
-	}
-
-	return nil
-}
-
-func (p *PinboardAPI) GetBookmark(uri string) (*Bookmark, error) {
-
-	req, err := http.NewRequest("GET", "https://api.pinboard.in/v1/posts/get", nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	params := url.Values{}
-
-	params.Set("url", uri)
-	params.Set("auth_token", p.AuthToken)
-	params.Set("format", "json")
-
-	req.URL.RawQuery = params.Encode()
-
-	client := &http.Client{}
-
-	rsp, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rsp.Body.Close()
-
-	if rsp.StatusCode != 200 {
-		return nil, errors.New(rsp.Status)
-	}
-
-	body, err := ioutil.ReadAll(rsp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	post := gjson.GetBytes(body, "posts.0")
-
-	if !post.Exists() {
-		return nil, nil
-	}
-
-	var url string
-	var title string
-	var tags []string
-
-	for k, v := range post.Map() {
-
-		switch k {
-		case "href":
-			url = v.String()
-		case "description":
-			title = v.String()
-		case "tags":
-			tags = strings.Split(v.String(), " ")
-		default:
-			// pass
-		}
-	}
-
-	bm := Bookmark{
-		URL:   url,
-		Title: title,
-		Tags:  tags,
-	}
-
-	return &bm, nil
-
-}
-
-type Bookmark struct {
-	URL   string
-	Title string
-	Tags  []string
-}
-
-func (bm Bookmark) ToParams() *url.Values {
-
-	params := url.Values{}
-
-	params.Set("url", bm.URL)
-	params.Set("description", bm.Title)
-	params.Set("tags", strings.Join(bm.Tags, " "))
-
-	return &params
-}
 
 func main() {
 
@@ -251,13 +77,13 @@ func main() {
 		log.Fatal("Missing Pinboard API token")
 	}
 
-	pb, err := NewPinboardAPI(*auth_token)
+	pb, err := pinboard.NewAPI(*auth_token)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	wb, err := NewWaybackAPI()
+	wb, err := internetarchive.NewWaybackMachine()
 
 	if err != nil {
 		log.Fatal(err)
@@ -356,7 +182,7 @@ func main() {
 
 	// get URL title
 
-	title, err := GetTitle(*to_archive)
+	title, err := webpage.GetTitle(*to_archive)
 
 	if err != nil {
 		log.Fatal(err)
@@ -399,7 +225,7 @@ func main() {
 		}
 	}
 
-	new_bm := Bookmark{
+	new_bm := pinboard.Bookmark{
 		URL:   *to_archive,
 		Title: title,
 		Tags:  tags,
@@ -420,44 +246,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func GetTitle(url string) (string, error) {
-
-	rsp, err := http.Get(url)
-
-	if err != nil {
-		return "", err
-	}
-
-	doc, err := html.Parse(rsp.Body)
-
-	if err != nil {
-		return "", err
-	}
-
-	defer rsp.Body.Close()
-
-	var title string
-	var f func(*html.Node)
-
-	f = func(n *html.Node) {
-
-		if n.Type == html.ElementNode && n.Data == "title" {
-			title = n.FirstChild.Data
-			return
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
-	}
-
-	f(doc)
-
-	if title == "" {
-		return "", errors.New("Failed to glean title from URL")
-	}
-
-	return title, nil
 }
