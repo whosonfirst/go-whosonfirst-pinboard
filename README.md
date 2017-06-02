@@ -16,6 +16,21 @@ make bin
 
 All of this package's dependencies are bundled with the code in the `vendor` directory.
 
+## What is the what?
+
+First of all, you shouldn't rely on any of the naming conventions yet. Not for packages, not for this repo, not for any of the function names.
+
+The thing we're trying to do here is a two-fold:
+
+1. Associate a URL with one or more WOF IDs
+2. Archive that URL
+
+To that end we're using Pinboard to bookmark the URL and assigning a whole bunch of `wof:` related tags for lookup and retrieval. We're also using the Wayback Machine API to create a snapshot of the URL and store the Wayback Machine timestamp for that snapshot as a tag.
+
+And basically it all works so that's great. We might just leave it there and get on with other things. Or maybe we will make the bookmarking and archiving components first class interfaces and simply have Pinboard and the Wayback Machine implement them. I don't know yet.
+
+Mostly just understand that packages like `whosonfirst/bookmark` are potentially misleading and packages like `pinboard` or `internetarchive` are incomplete (we don't implement the entirety of the Pinboard API for example) and may eventually move in to their own repos.
+
 ## Tools
 
 _Please write me..._

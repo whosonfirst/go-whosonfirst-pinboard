@@ -14,6 +14,7 @@ self:   prep
 	cp -r internetarchive src/github.com/whosonfirst/go-whosonfirst-pinboard/
 	cp -r pinboard src/github.com/whosonfirst/go-whosonfirst-pinboard/
 	cp -r webpage src/github.com/whosonfirst/go-whosonfirst-pinboard/
+	cp -r whosonfirst src/github.com/whosonfirst/go-whosonfirst-pinboard/
 	cp -r vendor/src/* src/
 
 deps:   
@@ -35,6 +36,7 @@ fmt:
 	go fmt internetarchive/*.go
 	go fmt pinboard/*.go
 	go fmt webpage/*.go
+	go fmt whosonfirst/*.go
 
 bin:	self
 	@GOPATH=$(GOPATH) go build -o bin/wof-archive-url cmd/wof-archive-url.go
