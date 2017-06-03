@@ -1,15 +1,15 @@
 package whosonfirst
 
 import (
-       "fmt"
+	"fmt"
 	"github.com/tidwall/gjson"
 	"github.com/whosonfirst/go-whosonfirst-pinboard/internetarchive"
 	"github.com/whosonfirst/go-whosonfirst-pinboard/pinboard"
-	"github.com/whosonfirst/go-whosonfirst-pinboard/webpage"		
-	"github.com/whosonfirst/go-whosonfirst-uri"	
-       "io/ioutil"	
-       "net/http"	
-       "net/url"
+	"github.com/whosonfirst/go-whosonfirst-pinboard/webpage"
+	"github.com/whosonfirst/go-whosonfirst-uri"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -18,15 +18,15 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	pb, err := pinboard.NewAPI(config.AuthToken)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	wb, err := internetarchive.NewWaybackMachine()
 
 	if err != nil {
-	   	return nil, err	
+		return nil, err
 	}
-	
+
 	parsed, err := url.Parse(to_archive)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	old_bm, err := pb.GetBookmark(to_archive)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	// fetch the WOF record and extract hierarchy and concordances
@@ -64,7 +64,7 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	rsp, err := http.Get(abs_url)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	defer rsp.Body.Close()
@@ -72,7 +72,7 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	feature, err := ioutil.ReadAll(rsp.Body)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	h := gjson.GetBytes(feature, "properties.wof:hierarchy")
@@ -129,7 +129,7 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	dt, err := wb.SaveURL(to_archive)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	// build bookmark
@@ -170,7 +170,7 @@ func BookmarkURL(to_archive string, wofid int64, config *Config) (*pinboard.Book
 	err = pb.SaveBookmark(&new_bm)
 
 	if err != nil {
-	   	return nil, err
+		return nil, err
 	}
 
 	return &new_bm, nil
