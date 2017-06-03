@@ -59,3 +59,24 @@ _Please write me..._
   ]
 }
 ```
+
+### wof-archive-daemon
+
+_Please write me._
+
+```
+$> export PINBOARD_AUTH_TOKEN=pinboard:s33kret
+$> ./bin/wof-archive-daemon
+```
+
+And then:
+
+```
+curl -s 'http://localhost:8080?wof_id=588527589&url=https://www.eastbayexpress.com/oakland/boycotters-condemn-924-gilman-st-projects-ethical-backslide/Content?oid=4807011'
+
+{"URL":"https://www.eastbayexpress.com/oakland/boycotters-condemn-924-gilman-st-projects-ethical-backslide/Content?oid=4807011","Title":"Boycotters Accuse 924 Gilman St. Project of Ethical Backslide |\n   \nEast Bay Express","Tags":["eastbayexpress.com","wof:placetype=venue","wof:id=588527589","archive:dt=20170603132449","wk:page=924_Gilman","venue","music","allages","wof:neighbourhood_id=85876237","wof:region_id=85688637","wof:venue_id=588527589","wof:continent_id=102191575","wof:country_id=85633793","wof:county_id=102086959","wof:locality_id=85921915"]}
+```
+
+## See also
+
+* https://pinboard.in/api/
