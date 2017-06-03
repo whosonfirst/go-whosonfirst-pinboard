@@ -91,7 +91,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Sprintf("%s", pretty.Pretty(enc_bm))
-
+	fmt.Printf("%s", pretty.Pretty(enc_bm))
 	os.Exit(0)
 }
